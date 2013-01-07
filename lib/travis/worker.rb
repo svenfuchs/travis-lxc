@@ -1,34 +1,33 @@
-require 'thread'
-require 'open3'
-require 'shellwords'
-require 'net/http'
-require 'uri'
+require 'core_ext/string/camelize'
 
 STDOUT.sync = true
 HOSTNAME = `hostname`
 
 module Travis
   class Worker
-    autoload :Jobs,     'travis/worker/jobs'
+    autoload :Receiver, 'travis/worker/receiver'
     autoload :Runner,   'travis/worker/runner'
     autoload :Reporter, 'travis/worker/reporter'
 
-    attr_reader :config, :jobs, :runners
+    attr_reader :config, :receivers
 
     def initialize(config)
-      @config  = config
-      @jobs    = Jobs.new
-      @runners = []
+      @config    = config
+      @receivers = []
     end
 
     def start
       1.upto(config[:threads]) do
-        runners << Runner.new(jobs)
+        receivers << Receiver.const_get(config[:receiver].to_s.camelize, false).new(config)
       end
       sleep
     end
   end
 end
 
-app = Travis::Worker.new(threads: 1)
+app = Travis::Worker.new(
+  threads: 1,
+  receiver: :stub,
+  reporter: :stub
+)
 app.start

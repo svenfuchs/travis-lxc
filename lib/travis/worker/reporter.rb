@@ -1,22 +1,22 @@
+require 'thread'
 require 'net/http'
 require 'uri'
 
 module Travis
   class Worker
     class Reporter
+      autoload :Amqp, 'travis/worker/reporter/amqp'
+      autoload :Http, 'travis/worker/reporter/http'
+      autoload :Stub, 'travis/worker/reporter/stub'
+
       EVENTS = /\[travis:([^:]+):(start|finish)(?::result=([\d]+))?\]\n/m
 
-      attr_reader :job, :queue, :targets, :last_stage, :last_state
+      attr_reader :job, :queue, :last_stage, :last_state
 
       def initialize(job)
         @job = job
         @queue = Queue.new
         @thread = Thread.new { loop { flush } }
-
-        @targets = {
-          log:   URI.parse(job[:urls][:log]),
-          state: URI.parse(job[:urls][:state])
-        }
         @number = 0
       end
 
@@ -27,20 +27,16 @@ module Travis
       def flush
         data = ''
         data << queue.pop until queue.empty?
-        report data
+        data.gsub!(EVENTS) { event($1, $2, $3); '' }
+        log(data) if @started && !data.empty?
         sleep job[:buffer] || 0.5
       rescue => e
         puts e.message, e.backtrace
         raise e
       end
 
-      def report(data)
-        data.gsub!(EVENTS) { event($1, $2, $3); '' }
-        log(data) if @started && !data.empty?
-      end
-
       def log(log)
-        post targets[:log], log: log, number: @number
+        report :log, log: log, number: @number
         @number += 1
       end
 
@@ -58,18 +54,14 @@ module Travis
 
       def on_start
         @started = true
-        post targets[:state], event: :start, started_at: Time.now, worker: HOSTNAME
+        report :state, event: :start, started_at: Time.now, worker: HOSTNAME
       end
 
       def on_finish(result)
         state = last_state == 'start' ? :errored : (result == 0 ? :passed : :failed)
         data = { event: :finish, state: state, finished_at: Time.now }
         data[:error] = :"#{last_stage}_failed" if state == :errored
-        post targets[:state], data
-      end
-
-      def post(target, data)
-        Net::HTTP.post_form(target, data)
+        report :state, data
       end
 
       def stop
