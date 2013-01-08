@@ -15,7 +15,8 @@ module Travis
 
       def run(job)
         reporting do |reporter|
-          Runner.new(job, reporter).run
+          const = Runner.const_get(config[:runner].to_s.camelize, false)
+          const.new(job, reporter).run
         end
       rescue => e
         puts e.message, e.backtrace
@@ -23,7 +24,8 @@ module Travis
       end
 
       def reporting
-        reporter = Reporter.const_get(config[:reporter].to_s.camelize, false).new(job)
+        const = Reporter.const_get(config[:reporter].to_s.camelize, false)
+        reporter = const.new(job)
         yield reporter
         sleep 2
         reporter.stop

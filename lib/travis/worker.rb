@@ -17,8 +17,9 @@ module Travis
     end
 
     def start
+      const = Receiver.const_get(config[:receiver].to_s.camelize, false)
       1.upto(config[:threads]) do
-        receivers << Receiver.const_get(config[:receiver].to_s.camelize, false).new(config)
+        receivers << const.new(config)
       end
       sleep
     end
@@ -26,7 +27,8 @@ module Travis
 end
 
 app = Travis::Worker.new(
-  threads: 1,
+  threads:  1,
+  runner:   :lxc,
   receiver: :stub,
   reporter: :stub
 )

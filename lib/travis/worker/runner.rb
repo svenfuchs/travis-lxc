@@ -1,8 +1,10 @@
-require 'open3'
-
 module Travis
   class Worker
     class Runner
+      autoload :Lxc,  'travis/worker/reporter/lxc'
+      autoload :Stub, 'travis/worker/reporter/stub'
+      autoload :Vbox, 'travis/worker/reporter/vbox'
+
       SSH_KEY = '/home/travis/.ssh/id_rsa'
 
       attr_reader :job, :reporter
@@ -18,14 +20,6 @@ module Travis
             reporter << char
           end
         end
-      end
-
-      def cmd
-        # 'ruby -e "STDOUT.sync = true; puts %([travis:build:start]); 1.upto(20) { |i| puts i; sleep(0.25) }; puts %([travis:build:finish:result=1])"'
-        lxc  = "lxc-start-ephemeral -o #{job[:lang]} -u travis -S #{SSH_KEY}"
-        curl = "curl -s --retry 20 --retry-max-time 600 --max-time 10 #{job[:urls][:script]}"
-        echo = "echo 'echo could not retrieve build script from #{job[:urls][:script]}'"
-        "#{lxc} -- '(#{curl} || #{echo}) | bash --login -s 2>&1'"
       end
     end
   end

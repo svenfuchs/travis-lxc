@@ -1,6 +1,7 @@
 module Travis
   class Worker
     class Receiver
+      # fakes receiving jobs, useful for testing/dev
       class Stub < Receiver
         def initialize(*)
           super
