@@ -1,9 +1,9 @@
 module Travis
   class Worker
     class Runner
-      autoload :Lxc,  'travis/worker/reporter/lxc'
-      autoload :Stub, 'travis/worker/reporter/stub'
-      autoload :Vbox, 'travis/worker/reporter/vbox'
+      autoload :Lxc,  'travis/worker/runner/lxc'
+      autoload :Stub, 'travis/worker/runner/stub'
+      autoload :Vbox, 'travis/worker/runner/vbox'
 
       SSH_KEY = '/home/travis/.ssh/id_rsa'
 

@@ -28,9 +28,9 @@ module Travis
         data = ''
         data << queue.pop until queue.empty?
         data.gsub!(EVENTS) { event($1, $2, $3); '' }
-        log(data) if @started && !data.empty?
+        log(data) if !data.empty? # @started &&
         sleep job[:buffer] || 0.5
-      rescue => e
+      rescue Exception => e
         puts e.message, e.backtrace
         raise e
       end

@@ -18,7 +18,7 @@ module Travis
           const = Runner.const_get(config[:runner].to_s.camelize, false)
           const.new(job, reporter).run
         end
-      rescue => e
+      rescue Exception => e
         puts e.message, e.backtrace
         raise e
       end

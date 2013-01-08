@@ -1,6 +1,7 @@
 module Travis
   class Worker
     class Runner
+      # runs a build script locally, useful for testing/dev
       class Stub < Runner
         def cmd
           # 'ruby -e "STDOUT.sync = true; puts %([travis:build:start]); 1.upto(20) { |i| puts i; sleep(0.25) }; puts %([travis:build:finish:result=1])"'

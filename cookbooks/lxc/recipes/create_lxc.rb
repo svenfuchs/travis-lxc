@@ -35,3 +35,10 @@ langs.each do |lang|
     not_if "lxc-ls | grep #{lang}"
   end
 end
+
+# install git, curl, make, gcc
+# install rvm
+#   curl -L https://get.rvm.io | bash -s stable --ruby
+#   need to copy stuff from .bash_profile to .bashrc?
+# install build-essential openssl libreadline6 libreadline6-dev zlib1g zlib1g-dev libssl-dev libyaml-dev libsqlite3-dev sqlite3 libxml2-dev libxslt-dev autoconf libc6-dev ncurses-dev automake libtool bison subversion pkg-config
+# install bundler
