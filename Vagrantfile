@@ -7,7 +7,7 @@ Vagrant::Config.run do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = 'precise'
+  config.vm.box = 'quantal'
 
   # config.ssh.username = 'travis'
 
