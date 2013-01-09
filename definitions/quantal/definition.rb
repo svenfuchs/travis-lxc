@@ -32,6 +32,6 @@ Veewee::Session.declare({
   :ssh_guest_port => "22",
   :sudo_cmd => "echo '%p'|sudo -S sh '%f'",
   :shutdown_cmd => "shutdown -P now",
-  :postinstall_files => [ "postinstall.sh", 'create_lxc.sh'],
+  :postinstall_files => [ "postinstall.sh", '../travis/kernel_upgrade.sh', '../travis/lxc_setup.sh'],
   :postinstall_timeout => "10000"
 })
