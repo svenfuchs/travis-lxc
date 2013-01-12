@@ -16,7 +16,11 @@ module Travis
               log:    'http://192.168.2.100:3000/jobs/1804637/log',
               state:  'http://192.168.2.100:3000/jobs/1804637/state'
             },
-            buffer: 0.1
+            buffer: 0.1,
+            timeout: {
+              build: 1800,
+              log: 300
+            }
           }
         end
       end
