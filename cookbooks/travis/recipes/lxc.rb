@@ -18,6 +18,11 @@ group group do
   members [user]
 end
 
+cookbook_file '/usr/local/bin/tlimit' do
+  source 'bin/tlimit'
+  mode 0755
+end
+
 # this would rather go into the ruby container ... or something.
 include_recipe 'rvm::user'
 

@@ -2,7 +2,27 @@ module Travis
   class Worker
     class Receiver
       class Http < Receiver
-        # poll an http api
+        attr_reader :thread
+
+        def initialize(*)
+          super
+          @thread = Thread.new { loop { poll } }
+        end
+
+        def stop
+          thread.exit
+        end
+
+        private
+
+          def poll
+            job = receive and run(job)
+            sleep config[:poll_interval] || 5
+          end
+
+          def receive
+            # poll an http api
+          end
       end
     end
   end

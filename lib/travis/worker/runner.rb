@@ -1,9 +1,11 @@
+require 'open3'
+
 module Travis
   class Worker
     class Runner
-      autoload :Lxc,  'travis/worker/runner/lxc'
-      autoload :Stub, 'travis/worker/runner/stub'
-      autoload :Vbox, 'travis/worker/runner/vbox'
+      autoload :Local, 'travis/worker/runner/local'
+      autoload :Lxc,   'travis/worker/runner/lxc'
+      autoload :Vbox,  'travis/worker/runner/vbox'
 
       SSH_KEY = '/home/travis/.ssh/id_rsa'
 
@@ -20,6 +22,10 @@ module Travis
             reporter << char
           end
         end
+      end
+
+      def watcher
+        @watcher ||= Watcher.build(timeouts: job[:timeouts], max_length: job[:max_length])
       end
     end
   end

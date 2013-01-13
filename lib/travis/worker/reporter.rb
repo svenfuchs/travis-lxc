@@ -36,6 +36,7 @@ module Travis
       end
 
       def log(log)
+        log.gsub! %r(^.*bin/tlimit.*Killed.*$), '' # hrm, can't silence kill
         report :log, log: log, number: @number
         @number += 1
       end

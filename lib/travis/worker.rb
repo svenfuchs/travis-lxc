@@ -30,6 +30,18 @@ app = Travis::Worker.new(
   threads:  1,
   runner:   :lxc,
   receiver: :stub,
-  reporter: :stub
+  reporter: :stub,
+  amqp: {
+    host: 'localhost',
+    port: 5672,
+    username: 'travis',
+    password: 'travis',
+    vhost: '/travis',
+    queues: {
+      builds: 'builds.common',
+      log:    'reporting.jobs.logs',
+      state:  'reporting.jobs.builds'
+    }
+  }
 )
 app.start

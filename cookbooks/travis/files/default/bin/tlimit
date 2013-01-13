@@ -1,0 +1,46 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: `basename $0 .sh` [-b build_timeout] [-l log_timeout] [-m max_length] command"
+  exit 1
+}
+
+args=`getopt b:l:m: $*`
+[ $? != 0 ] && usage
+set -- $args
+
+build_timeout=1800
+log_timeout=300
+max_length=10
+
+for i; do
+  case $i in
+    -b) build_timeout=$2; shift; shift;;
+    -l) log_timeout=$2;   shift; shift;;
+    -m) max_length=$2;    shift; shift;;
+    --) shift; break;;
+  esac
+done
+
+ terminate() {
+   killtree $pid > /dev/null 2>&1
+   [[ $1 ]] && (echo; echo "$1 ... terminating."; echo)
+   exit 1
+ }
+
+ out=$(mktemp /tmp/build.XXX)
+ exec > >(tee -a $out)
+ $@ <&0 &
+ pid=$!
+ trap "rm -f $out; terminate" EXIT
+
+ start=$(date +%s)
+ while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
+  now=$(date +%s)
+  mtime=$([[ `uname` = 'Linux' ]] && stat -c %Y $out || stat -f %m $out)
+  size=$([[ `uname` = 'Linux' ]] && stat -c %s $out || stat -f %c $out)
+  [ $(expr $now - $start) -ge $build_timeout ] && terminate "Timed out after $build_timeout seconds"
+  [ $(expr $now - $mtime) -gt $log_timeout   ] && terminate "No log output for $log_timeout seconds"
+  [ $size -gt $max_length                    ] && terminate "Log length exceeded $max_length bytes"
+  sleep 1
+done

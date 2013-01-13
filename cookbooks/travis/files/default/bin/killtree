@@ -1,0 +1,18 @@
+#!/bin/bash
+
+killtree() {
+  local pid=$1
+  local sig=${2-TERM}
+  kill -stop $pid # stop quickly forking parent from producing children
+  for child in $(ps -o pid --no-headers --ppid $pid); do
+    killtree $child $sig
+  done
+  kill -$sig $pid
+}
+
+if [ $# -eq 0 -o $# -gt 2 ]; then
+  echo "Usage: $(basename $0) <pid> [signal]"
+  exit 1
+fi
+
+killtree $@
