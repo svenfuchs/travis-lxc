@@ -8,6 +8,7 @@ module Travis
     autoload :Receiver, 'travis/worker/receiver'
     autoload :Runner,   'travis/worker/runner'
     autoload :Reporter, 'travis/worker/reporter'
+    autoload :Utils,    'travis/worker/utils'
 
     attr_reader :config, :receivers
 
@@ -23,25 +24,25 @@ module Travis
       end
       sleep
     end
+
+    def stop
+      receivers.each { |receiver| receiver.stop }
+    end
   end
 end
 
 app = Travis::Worker.new(
-  threads:  1,
-  runner:   :lxc,
+  threads: 1,
   receiver: :stub,
-  reporter: :stub,
+  runner:   :lxc,
+  reporter: :amqp,
   amqp: {
     host: 'localhost',
     port: 5672,
     username: 'travis',
     password: 'travis',
     vhost: '/travis',
-    queues: {
-      builds: 'builds.common',
-      log:    'reporting.jobs.logs',
-      state:  'reporting.jobs.builds'
-    }
+    queue: 'builds',
   }
 )
 app.start

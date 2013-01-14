@@ -1,5 +1,5 @@
 require 'hot_bunnies'
-require 'json'
+require 'multi_json'
 
 module Travis
   class Worker
@@ -15,13 +15,14 @@ module Travis
 
         def stop
           subscription.cancel
+          channel.close
+          connection.close
         end
 
         private
 
-          def run(headers, msg)
-            job = JSON.parse(msg)
-            super(normalize(job))
+          def run(headers, data)
+            super(MultiJson.decode(data))
             headers.ack
           rescue Exception => e
             puts e.message, e.backtrace
@@ -32,8 +33,7 @@ module Travis
           end
 
           def queue
-            @queue = channel.queue(config[:amqp][:queues][:builds], durable: true)
-            # queue.bind(exchange, :routing_key => 'builds.common')
+            @queue = channel.queue(config[:amqp][:queue], durable: true)
           end
 
           def channel
@@ -44,10 +44,6 @@ module Travis
 
           def connection
             @connection ||= HotBunnies.connect(config[:amqp])
-          end
-
-          def normalize(job)
-            job
           end
       end
     end

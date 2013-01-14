@@ -1,3 +1,5 @@
+require 'base64'
+
 module Travis
   class Worker
     class Receiver
@@ -18,18 +20,24 @@ module Travis
 
           def job
             {
+              id: 1804637,
               lang: 'ruby',
               urls: {
                 script: 'http://192.168.2.100:3000/jobs/1804637/build.sh',
                 log:    'http://192.168.2.100:3000/jobs/1804637/log',
                 state:  'http://192.168.2.100:3000/jobs/1804637/state'
               },
+              routing_keys: {
+                state: 'reporting.jobs.builds',
+                log: 'reporting.jobs.logs'
+              },
               buffer: 0.1,
               timeouts: {
                 build: 1800,
                 log: 300
               },
-              max_length: 10
+              max_length: 10,
+              repo_key: Base64.encode64(File.read(File.expand_path('~/.ssh/id_rsa.repo')))
             }
           end
       end
