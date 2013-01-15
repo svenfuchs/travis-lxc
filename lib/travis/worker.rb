@@ -5,10 +5,11 @@ HOSTNAME = `hostname`
 
 module Travis
   class Worker
+    autoload :Helpers,  'travis/worker/helpers'
     autoload :Receiver, 'travis/worker/receiver'
     autoload :Runner,   'travis/worker/runner'
     autoload :Reporter, 'travis/worker/reporter'
-    autoload :Utils,    'travis/worker/utils'
+    autoload :Vm,       'travis/worker/vm'
 
     attr_reader :config, :receivers
 
@@ -34,15 +35,15 @@ end
 app = Travis::Worker.new(
   threads: 1,
   receiver: :stub,
-  runner:   :lxc,
-  reporter: :amqp,
-  amqp: {
-    host: 'localhost',
-    port: 5672,
-    username: 'travis',
-    password: 'travis',
-    vhost: '/travis',
-    queue: 'builds',
-  }
+  runner:   :vbox,
+  reporter: :stub,
+  # amqp: {
+  #   host: 'localhost',
+  #   port: 5672,
+  #   username: 'travis',
+  #   password: 'travis',
+  #   vhost: '/travis',
+  #   queue: 'builds',
+  # }
 )
 app.start

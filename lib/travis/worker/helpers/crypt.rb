@@ -3,7 +3,7 @@ require 'base64'
 
 module Travis
   class Worker
-    class Utils
+    class Helpers
       module Crypt
         def decode(string)
           Base64.decode64(string)

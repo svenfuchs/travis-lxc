@@ -44,6 +44,11 @@ bash 'authorize ssh key' do
   creates "#{rootfs}#{home}/.ssh/authorized_keys"
 end
 
+cookbook_file '/usr/local/bin/tlimit' do
+  source 'bin/tlimit'
+  mode 0755
+end
+
 bash 'chown home dir' do
   code "chroot #{rootfs} chown -R travis:travis #{home}"
 end

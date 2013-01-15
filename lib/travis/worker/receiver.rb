@@ -8,7 +8,7 @@ module Travis
       autoload :Http, 'travis/worker/receiver/http'
       autoload :Stub, 'travis/worker/receiver/stub'
 
-      include Utils::Crypt
+      include Helpers::Crypt
 
       attr_reader :config, :runner
 
@@ -27,11 +27,11 @@ module Travis
           reporting(job) do |reporter|
             const = Runner.const_get(config[:runner].to_s.camelize, false)
             @runner = const.new(job, reporter)
-            @runner.run
+            runner.run
           end
         rescue Exception => e
           puts e.message, e.backtrace
-          raise e
+          exit
         end
 
         def reporting(job)

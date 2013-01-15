@@ -29,7 +29,7 @@ module Travis
               },
               routing_keys: {
                 state: 'reporting.jobs.builds',
-                log: 'reporting.jobs.logs'
+                log:   'reporting.jobs.logs'
               },
               buffer: 0.1,
               timeouts: {
@@ -37,8 +37,10 @@ module Travis
                 log: 300
               },
               max_length: 10,
-              repo_key: Base64.encode64(File.read(File.expand_path('~/.ssh/id_rsa.repo')))
+              repo_key: Base64.encode64(File.read(File.expand_path('.ssh/id_rsa.repo')))
             }
+          rescue Exception => e
+            puts e.message, e.backtrace
           end
       end
     end

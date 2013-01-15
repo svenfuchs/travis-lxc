@@ -8,7 +8,7 @@ module Travis
       autoload :Lxc,  'travis/worker/runner/lxc'
       autoload :Vbox, 'travis/worker/runner/vbox'
 
-      include Utils::Crypt
+      include Helpers::Crypt
 
       SSH_KEY = '/home/travis/.ssh/id_rsa'
 
