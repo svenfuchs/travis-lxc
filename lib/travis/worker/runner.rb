@@ -4,8 +4,8 @@ require 'open3'
 module Travis
   class Worker
     class Runner
-      autoload :Base, 'travis/worker/runner/base'
       autoload :Lxc,  'travis/worker/runner/lxc'
+      autoload :Stub, 'travis/worker/runner/stub'
       autoload :Vbox, 'travis/worker/runner/vbox'
 
       include Helpers::Crypt

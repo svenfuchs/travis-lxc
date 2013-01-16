@@ -6,6 +6,9 @@ module Travis
 
         def initialize(*)
           super
+        end
+
+        def start
           @thread = Thread.new { loop { poll } }
         end
 

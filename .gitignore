@@ -4,3 +4,4 @@ notes
 *.box
 play
 .ssh
+config/worker.yml

@@ -9,7 +9,7 @@ module Travis
       autoload :Http, 'travis/worker/reporter/http'
       autoload :Stub, 'travis/worker/reporter/stub'
 
-      EVENTS = /\[travis:([^:]+):(start|finish)(?::result=([\d]+))?\]\n/m
+      EVENTS = /\[travis:([^:]+):(start|finish)(?::result=([\d]+))?\]\n?/m
 
       attr_reader :job, :config, :queue, :last_stage, :last_state, :number
 
@@ -17,43 +17,45 @@ module Travis
         @job    = job
         @config = config
         @queue  = Queue.new
-        @thread = Thread.new { loop { flush } }
         @number = 0
       end
 
-      def stop
-        @thread.exit
+      def start
+        @thread = Thread.new { loop { flush } }
       end
 
       def <<(logs)
         queue << logs
       end
 
-      private
+      def flush
+        data = ''
+        data << queue.pop until queue.empty?
+        data.gsub!(EVENTS) { event($1.to_sym, $2.to_sym, $3.to_i); '' }
+        log(data) if !data.empty? # @started &&
+        sleep job[:buffer] || 0.5
+      rescue Exception => e
+        puts e.message, e.backtrace
+      end
 
-        def flush
-          data = ''
-          data << queue.pop until queue.empty?
-          data.gsub!(EVENTS) { event($1, $2, $3); '' }
-          log(data) if !data.empty? # @started &&
-          sleep job[:buffer] || 0.5
-        rescue Exception => e
-          puts e.message, e.backtrace
-        end
+      def stop
+        @thread.exit
+      end
+
+      private
 
         def log(log)
           log.gsub! %r(^.*bin/tlimit.*Killed.*$), '' # hrm, can't silence kill
-          report :log, log: log, number: number
+          report :log, log: log, number: number, uuid: job[:uuid]
           @number += 1
         end
 
         def event(stage, state, result)
-          puts [stage, state, result].compact.join(':')
-
-          if stage == 'build' && state == 'start'
+          # puts [stage, state, result].compact.join(':')
+          if stage == :build && state == :start
             on_start
-          elsif stage == 'build' && state == 'finish'
-            on_finish(result.to_i)
+          elsif stage == :build && state == :finish
+            on_finish(result)
           else
             @last_stage, @last_state = stage, state
           end
@@ -61,15 +63,15 @@ module Travis
 
         def on_start
           @started = true
-          report :state, event: :start, started_at: Time.now, worker: HOSTNAME
+          report :state, event: :start, started_at: Time.now, worker: HOSTNAME, uuid: job[:uuid]
         end
 
         def on_finish(result)
-          state = last_state == 'start' ? :errored : (result == 0 ? :passed : :failed)
-          data = { event: :finish, state: state, finished_at: Time.now }
+          report :log, final: true, number: number, uuid: job[:uuid]
+          state = last_state == :start ? :errored : (result == 0 ? :passed : :failed)
+          data = { event: :finish, state: state, finished_at: Time.now, uuid: job[:uuid] }
           data[:error] = :"#{last_stage}_failed" if state == :errored
           report :state, data
-          report :log, final: true, number: number
         end
     end
   end

@@ -9,7 +9,9 @@ module Travis
 
         def initialize(*)
           super
-          @thread = Thread.new { loop { run(job) } }
+        end
+
+        def start
           @subscription = subscribe(&method(:run))
         end
 
@@ -19,14 +21,14 @@ module Travis
           connection.close
         end
 
-        private
+        def run(headers, data)
+          super(MultiJson.decode(data))
+          headers.ack
+        rescue Exception => e
+          puts e.message, e.backtrace
+        end
 
-          def run(headers, data)
-            super(MultiJson.decode(data))
-            headers.ack
-          rescue Exception => e
-            puts e.message, e.backtrace
-          end
+        private
 
           def subscribe(&block)
             queue.subscribe(ack: true, blocking: false, &block)

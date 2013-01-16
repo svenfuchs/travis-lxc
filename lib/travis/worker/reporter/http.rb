@@ -3,7 +3,6 @@ module Travis
     class Reporter
       class Http < Reporter
         def report(type, data)
-          # data.merge!(uuid: Travis.uuid)
           Net::HTTP.post_form(targets[type], data)
         end
 

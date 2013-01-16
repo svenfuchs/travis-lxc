@@ -1,4 +1,5 @@
-require 'core_ext/string/camelize'
+require 'core_ext/hash/deep_symbolize_keys'
+require 'yaml'
 
 STDOUT.sync = true
 HOSTNAME = `hostname`
@@ -13,15 +14,16 @@ module Travis
 
     attr_reader :config, :receivers
 
-    def initialize(config)
-      @config    = config
+    def initialize(config = nil)
+      @config    = config || YAML.load_file('config/worker.yml').deep_symbolize_keys
       @receivers = []
     end
 
     def start
-      const = Receiver.const_get(config[:receiver].to_s.camelize, false)
       1.upto(config[:threads]) do
-        receivers << const.new(config)
+        receiver = Receiver.create(config)
+        receivers << receiver
+        receiver.start
       end
       sleep
     end
@@ -31,19 +33,3 @@ module Travis
     end
   end
 end
-
-app = Travis::Worker.new(
-  threads: 1,
-  receiver: :stub,
-  runner:   :vbox,
-  reporter: :stub,
-  # amqp: {
-  #   host: 'localhost',
-  #   port: 5672,
-  #   username: 'travis',
-  #   password: 'travis',
-  #   vhost: '/travis',
-  #   queue: 'builds',
-  # }
-)
-app.start

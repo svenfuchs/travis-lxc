@@ -9,6 +9,9 @@ module Travis
 
         def initialize(*)
           super
+        end
+
+        def start
           @thread = Thread.new { loop { run(job) } }
         end
 
@@ -36,7 +39,7 @@ module Travis
                 build: 1800,
                 log: 300
               },
-              max_length: 10,
+              max_length: 500,
               repo_key: Base64.encode64(File.read(File.expand_path('.ssh/id_rsa.repo')))
             }
           rescue Exception => e

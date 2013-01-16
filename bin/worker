@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+$: << 'lib'
+require 'travis/worker'
+
+app = Travis::Worker.new
+app.start
+
