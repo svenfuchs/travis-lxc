@@ -1,46 +1,48 @@
 #!/bin/bash
 
 usage() {
-  echo "Usage: `basename $0 .sh` [-b build_timeout] [-l log_timeout] [-m max_length] command"
+  echo "Usage: `basename $0 .sh` [-c cmd_timeout] [-l log_timeout] [-m max_output] command"
   exit 1
 }
 
-args=`getopt b:l:m: $*`
+args=`getopt c:l:m: $*`
 [ $? != 0 ] && usage
 set -- $args
 
-build_timeout=1800
+cmd_timeout=1800
 log_timeout=300
-max_length=10
+max_output=0
 
 for i; do
   case $i in
-    -b) build_timeout=$2; shift; shift;;
-    -l) log_timeout=$2;   shift; shift;;
-    -m) max_length=$2;    shift; shift;;
+    -c) cmd_timeout=$2; shift; shift;;
+    -l) log_timeout=$2; shift; shift;;
+    -m) max_output=$2; shift; shift;;
     --) shift; break;;
   esac
 done
 
- terminate() {
-   killtree $pid > /dev/null 2>&1
-   [[ $1 ]] && (echo; echo "$1 ... terminating."; echo)
-   exit 1
- }
+terminate() {
+  killtree $pid > /dev/null 2>&1
+  [[ $1 ]] && (echo; echo "$1 ... terminating."; echo)
+  exit 1
+}
 
- out=$(mktemp /tmp/build.XXX)
- exec > >(tee -a $out)
- $@ <&0 &
- pid=$!
- trap "rm -f $out; terminate" EXIT
+tmp=$(mktemp /tmp/build.XXX)
+exec > >(tee -a $tmp)
+$@ <&0 &
+pid=$!
+trap "rm -f $tmp; terminate" EXIT
 
- start=$(date +%s)
- while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
+start=$(date +%s)
+while ps aux | awk '{print $2 }' | grep -q $pid 2> /dev/null; do
   now=$(date +%s)
-  mtime=$([[ `uname` = 'Linux' ]] && stat -c %Y $out || stat -f %m $out)
-  size=$([[ `uname` = 'Linux' ]] && stat -c %s $out || stat -f %c $out)
-  [ $(expr $now - $start) -ge $build_timeout ] && terminate "Timed out after $build_timeout seconds"
-  [ $(expr $now - $mtime) -gt $log_timeout   ] && terminate "No log output for $log_timeout seconds"
-  [ $size -gt $max_length                    ] && terminate "Log length exceeded $max_length bytes"
+  cmd=$(expr $now - $start)
+  log=$(expr $now - $([[ `uname` = 'Linux' ]] && stat -c %Y $tmp || stat -f %m $tmp))
+  out=$([[ `uname` = 'Linux' ]] && stat -c %s $tmp || stat -f %z $tmp)
+
+  [ $cmd_timeout -gt 0 -a $cmd -gt $cmd_timeout ] && terminate "Timed out after $cmd_timeout seconds"
+  [ $log_timeout -gt 0 -a $log -gt $log_timeout ] && terminate "No log output for $log_timeout seconds"
+  [ $max_output  -gt 0 -a $out -gt $max_output  ] && terminate "Log length exceeded $max_output bytes"
   sleep 1
 done
