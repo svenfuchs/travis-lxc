@@ -4,10 +4,6 @@ module Travis
       class Http < Receiver
         attr_reader :thread
 
-        def initialize(*)
-          super
-        end
-
         def start
           @thread = Thread.new { loop { poll } }
         end

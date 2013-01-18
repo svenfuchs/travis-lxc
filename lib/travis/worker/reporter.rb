@@ -46,6 +46,7 @@ module Travis
 
         def log(log)
           log.gsub! %r(^.*bin/tlimit.*Killed.*$), '' # hrm, can't silence kill
+          # TODO log = Coder.clean(data[:log])
           report :log, log: log, number: number, uuid: job[:uuid]
           @number += 1
         end

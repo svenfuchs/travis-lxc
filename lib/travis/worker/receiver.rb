@@ -52,6 +52,7 @@ module Travis
 
         def normalize(job)
           job = job.deep_symbolize_keys
+          job[:lang] ||= 'ruby'
           job[:repo_key] = decrypt(decode(job[:repo_key])) if job[:repo_key]
           job
         end

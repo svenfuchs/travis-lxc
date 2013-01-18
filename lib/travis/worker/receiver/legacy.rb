@@ -1,9 +1,12 @@
+require 'core_ext/hash/deep_symbolize_keys'
+
 module Travis
   class Worker
     class Receiver
       module Legacy
         def normalize(msg)
-          super(
+          msg = msg.deep_symbolize_keys
+          msg = {
             id: msg[:job][:id],
             urls: {
               script: "#{config[:api_endpoint]}/jobs/#{msg[:job][:id]}/build.sh",
@@ -19,7 +22,8 @@ module Travis
             },
             max_length: 1 * 1024 * 1024,
             # repo_key: Base64.encode64(File.read(File.expand_path('.ssh/id_rsa.repo')))
-          )
+          }
+          super
         end
       end
     end

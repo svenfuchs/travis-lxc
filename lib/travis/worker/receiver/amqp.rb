@@ -9,10 +9,6 @@ module Travis
 
         attr_reader :subscription
 
-        def initialize(*)
-          super
-        end
-
         def start
           @subscription = subscribe(&method(:run))
         end

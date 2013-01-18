@@ -7,10 +7,6 @@ module Travis
       class Stub < Receiver
         attr_reader :thread
 
-        def initialize(*)
-          super
-        end
-
         def start
           @thread = Thread.new { loop { run(job) } }
         end
