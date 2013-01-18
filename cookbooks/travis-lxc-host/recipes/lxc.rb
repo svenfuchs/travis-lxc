@@ -5,6 +5,11 @@ home  = "/home/#{user}"
 key   = "/home/#{user}/.ssh/id_rsa.pub"
 langs = %w(ruby)
 
+bash "create base container" do
+  code   "lxc-create -t ubuntu -n base"
+  not_if "lxc-ls | grep base"
+end
+
 bash 'create group' do
   code   "chroot #{rootfs} groupadd --system #{group}"
   not_if "chroot #{rootfs} grep ^#{group}: /etc/group"

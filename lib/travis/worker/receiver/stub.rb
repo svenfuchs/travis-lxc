@@ -36,10 +36,10 @@ module Travis
               },
               buffer: 0.1,
               timeouts: {
-                build: 1800,
-                log: 300
+                build: 25 * 60,
+                log: 5 * 60
               },
-              max_length: 500,
+              max_length: 1 * 1024 * 1024,
               repo_key: Base64.encode64(File.read(File.expand_path('.ssh/id_rsa.repo')))
             }
           rescue Exception => e

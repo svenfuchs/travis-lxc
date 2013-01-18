@@ -4,9 +4,10 @@ require 'core_ext/hash/deep_symbolize_keys'
 module Travis
   class Worker
     class Receiver
-      autoload :Amqp, 'travis/worker/receiver/amqp'
-      autoload :Http, 'travis/worker/receiver/http'
-      autoload :Stub, 'travis/worker/receiver/stub'
+      autoload :Amqp,   'travis/worker/receiver/amqp'
+      autoload :Http,   'travis/worker/receiver/http'
+      autoload :Legacy, 'travis/worker/receiver/legacy'
+      autoload :Stub,   'travis/worker/receiver/stub'
 
       class << self
         def create(config)

@@ -5,6 +5,8 @@ module Travis
   class Worker
     class Receiver
       class Amqp < Receiver
+        include Legacy
+
         attr_reader :subscription
 
         def initialize(*)

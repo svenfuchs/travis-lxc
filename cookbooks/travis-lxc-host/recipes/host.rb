@@ -6,11 +6,6 @@ key    = "#{home}/.ssh/id_rsa"
 package 'libyaml-dev'
 package 'git-core'
 
-cookbook_file "/root/.ssh/config" do
-  source 'ssh_config'
-  mode 0644
-end
-
 user user do
   home "/home/#{user}"
   shell "/bin/bash"
@@ -50,11 +45,16 @@ bash 'chown home dir' do
   code "chown -R travis:travis #{home}"
 end
 
-cookbook_file '/usr/local/bin/tlimit' do
-  source 'bin/tlimit'
-  mode 0755
-end
-
 cookbook_file "/etc/sudoers" do
   source 'sudoers'
+end
+
+cookbook_file "/root/.ssh/config" do
+  source 'ssh_config'
+  mode 0644
+end
+
+bash 'copy ssh key for root' do
+  code "cp #{key} /root/.ssh/id_rsa"
+  creates '/root/.ssh/id_rsa'
 end

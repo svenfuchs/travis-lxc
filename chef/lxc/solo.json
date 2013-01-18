@@ -1,0 +1,29 @@
+{
+  "run_list": [
+    "recipe[travis_build_environment]",
+    "recipe[rvm]",
+    "recipe[rvm::multi]",
+    "recipe[apt]",
+    "recipe[build-essential]",
+    "recipe[networking_basic]",
+    "recipe[sqlite]",
+    "recipe[postgresql::client]",
+    "recipe[mysql::client]",
+    "recipe[mysql::server_on_ramfs]",
+    "recipe[postgresql::server_on_ramfs]"
+  ],
+  "rvm": {
+    "rubies": [ { "name": "1.9.3" }, { "name": "2.0.0" } ],
+    "default": "1.9.3",
+    "gems": [ "bundler", "rake" ]
+  },
+  "travis_build_environment": {
+    "use_tmpfs_for_builds": true
+  },
+  "mysql": {
+    "server_root_password": ""
+  },
+  "postgresql": {
+    "max_connections": 256
+  }
+}
