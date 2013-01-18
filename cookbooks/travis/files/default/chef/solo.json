@@ -1,6 +1,7 @@
 {
   "run_list": [
-    "recipe[travis::lxc]"
+    "recipe[travis::lxc]",
+    "recipe[travis-cookbooks::ci_environment]"
   ],
   "rvm": {
     "user_installs": [

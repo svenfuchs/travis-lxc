@@ -1,9 +1,10 @@
-root  = '/var/lib/lxc/base/rootfs'
 user  = 'travis'
 group = 'travis'
-home  = "#{root}/home/#{user}"
+home  = "/home/#{user}"
 key   = "/home/#{user}/.ssh/id_rsa.pub"
 langs = %w(ruby)
+
+package 'libyaml-dev'
 
 user user do
   home "/home/#{user}"
@@ -23,13 +24,10 @@ cookbook_file '/usr/local/bin/tlimit' do
   mode 0755
 end
 
+bash 'chown home dir' do
+  code "chown -R travis:travis #{home}"
+end
+
 # this would rather go into the ruby container ... or something.
 include_recipe 'rvm::user'
-
-# why the hell does this fail
-langs.each do |lang|
-  bash "clone base container to #{lang}" do
-    code   "lxc-clone -o base -n #{lang}"
-    not_if "lxc-ls | grep #{lang}"
-  end
-end
+# include_recipe 'ci_environment::travis_build_environment'

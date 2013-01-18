@@ -39,7 +39,6 @@ module Travis
           limit = "tlimit -c #{job[:timeouts][:build]} -l #{job[:timeouts][:log]} -m #{job[:max_length]}"
           bash  = "bash --login -s"
           [copy, "(#{curl} || #{echo}) | #{limit} -- #{bash} 2>&1"].compact.join('; ')
-          # "(#{curl} || #{echo}) | #{bash} 2>&1"
         end
     end
   end

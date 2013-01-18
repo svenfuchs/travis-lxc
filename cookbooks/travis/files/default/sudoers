@@ -19,4 +19,4 @@ root    ALL=(ALL:ALL) ALL
 %sudo   ALL=(ALL:ALL) ALL
 
 # %travis ALL=(ALL) NOPASSWD:ALL
-%travis ALL=(ALL:ALL) NOPASSWD:ALL
+travis ALL=(ALL:ALL) NOPASSWD:ALL
