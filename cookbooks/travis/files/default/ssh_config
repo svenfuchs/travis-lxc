@@ -1,7 +1,0 @@
-Host *.lxc
-  User travis
-  StrictHostKeyChecking no
-  UserKnownHostsFile /dev/null
-  # http://www.stgraber.org/2012/07/17/easily-ssh-to-your-containers-and-vms-on-ubuntu-12-04-lts
-  ProxyCommand nc $(host $(echo %h | sed "s/\\.lxc//g") 10.0.3.1 | tail -1 | awk '{print $NF}') %p
-

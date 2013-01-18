@@ -13,7 +13,8 @@ Vagrant::Config.run do |config|
   # config.ssh.username = 'travis'
 
   config.vm.provision :chef_solo do |chef|
-    chef.add_recipe 'travis::host'
+    chef.add_recipe 'travis-lxc-host::host'
+    chef.add_recipe 'travis-lxc-host::lxc'
     chef.log_level = :debug
     # chef.data_bags_path = 'data_bags'
 
